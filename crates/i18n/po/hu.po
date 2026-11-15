@@ -498,6 +498,11 @@ msgstr "Egy találkozó, amely megismétli és kihagy néhány napot nem lehet f
 msgid "A message asking to unsubscribe goes from {from} to {to}, through your Outbox."
 msgstr "A leiratkozást kérő üzenet {from} címről {to} címre megy a Postázandó üzeneteken keresztül."
 
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "A message larger than MailCraft takes stays on the server: it can't be read a part at a time"
+msgstr ""
+
 #. interface
 #: crates/ui-egui/src/updates.rs
 #, fuzzy
@@ -1439,6 +1444,11 @@ msgstr "Válaszoljon a meghívóra, és megkérdezem, hogy elmondja-e a szervez�
 #, fuzzy
 msgid "Any other mail server"
 msgstr "Más levelezési kiszolgáló"
+
+#. name
+#: crates/ui-egui/src/account_setup.rs
+msgid "Any other mail server, read with POP"
+msgstr ""
 
 #. interface
 #: crates/ui-egui/src/graph_switch.rs
@@ -3385,7 +3395,7 @@ msgid "Couldn't check"
 msgstr "Nem sikerült ellenőrizni"
 
 #. why a mail server couldn't be used
-#: crates/net/src/sync.rs
+#: crates/net/src/pop.rs crates/net/src/sync.rs
 #, fuzzy
 msgid "Couldn't check for new mail"
 msgstr "Nem tudtam új levelet keresni."
@@ -3515,6 +3525,16 @@ msgstr "Nem sikerült elolvasni a {name}-t: a szerver nem írta fel {count} üze
 #, fuzzy
 msgid "Couldn't read Gmail's categories of \"{name}\""
 msgstr "Nem tudtam elolvasni Gmail \"{name}\" kategóriáit."
+
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "Couldn't read a message of the Inbox"
+msgstr ""
+
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "Couldn't read the account's mail"
+msgstr ""
 
 #. why a mail server couldn't be used
 #: crates/net/src/sync.rs
@@ -6620,6 +6640,11 @@ msgstr "Az eredeti üzenet beillesztése válaszadáskor"
 msgid "Incoming mail (IMAP)"
 msgstr "Bejövő levél (IMAP)"
 
+#. interface
+#: crates/ui-egui/src/account_setup.rs
+msgid "Incoming mail (POP)"
+msgstr ""
+
 #. command label, ribbon
 #: crates/engine/src/cmd/format.rs crates/ui-egui/src/ribbon.rs
 #, fuzzy
@@ -7313,6 +7338,11 @@ msgid "Leave it not verified"
 msgstr "Ne ellenőrizd!"
 
 #. interface
+#: crates/ui-egui/src/account_setup.rs
+msgid "Leave mail on the server after it is fetched"
+msgstr ""
+
+#. interface
 #: crates/ui-egui/src/sync_panel.rs
 #, fuzzy
 msgid "Leave this account out of this Send/Receive"
@@ -7727,12 +7757,6 @@ msgid "MailCraft doesn't rename or move a JMAP account's folders yet: its server
 msgstr "A MailCraft még nem nevezi át vagy mozgatja át a JMAP fiók mappáit: a szerverét nem mondták el"
 
 #. interface
-#: crates/ui-egui/src/account_setup.rs
-#, fuzzy
-msgid "MailCraft doesn't support POP yet. Use your provider's IMAP server instead (usually imap.<your domain>, port 993)."
-msgstr "MailCraft még nem támogatja a POP-t. Használja a szolgáltató IMAP szerverét helyette (általában az imap. < domain>, port 993)."
-
-#. interface
 #: crates/ui-egui/src/software.rs
 #, fuzzy
 msgid "MailCraft is drawing without the graphics card, which uses a lot of processor time. Installing or updating the graphics driver usually fixes this."
@@ -7773,6 +7797,11 @@ msgstr "MailCraft tartja a legtöbb {n} kulcsok importált itt, és ennyi: távo
 #, fuzzy
 msgid "MailCraft keeps it in memory until you close the app. It is never written to disk."
 msgstr "MailCraft tartja emlékezetben, amíg nem zárja be az alkalmazást. Ez soha nem íródott lemezre."
+
+#. interface
+#: crates/ui-egui/src/account_setup.rs
+msgid "MailCraft keeps its own copy; what is on the server stays, and comes down once."
+msgstr ""
 
 #. interface
 #: crates/ui-egui/src/security.rs
@@ -10419,6 +10448,11 @@ msgstr "Egyéb"
 #, fuzzy
 msgid "Other (IMAP)"
 msgstr "Egyéb (IMAP)"
+
+#. name
+#: crates/ui-egui/src/account_setup.rs
+msgid "Other (POP)"
+msgstr ""
 
 #. interface
 #: crates/ui-egui/src/calendar_view.rs
@@ -14596,6 +14630,11 @@ msgstr "Ez nem a fájl jelszója."
 msgid "That key is on the card already"
 msgstr "Az a kulcs már a kártyán van."
 
+#. interface
+#: crates/ui-egui/src/account_setup.rs
+msgid "That looks like a POP server. Pick Other (POP) on the first page, or use your provider's IMAP server (usually imap.<your domain>, port 993)."
+msgstr ""
+
 #. what a command says
 #: crates/mobile/src/sync.rs crates/mobile/src/sync_api.rs
 #, fuzzy
@@ -15672,6 +15711,11 @@ msgstr "A kiszolgáló a Web Szolgáltatások cseréje nélkül válaszolt. Kér
 msgid "The server answered, but not as an Exchange server does. Check its address in Server settings."
 msgstr "A kiszolgáló válaszolt, de nem úgy, mint egy Exchange szerver. Ellenőrizze a címét a kiszolgáló beállításaiban."
 
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "The server can't name its messages (no UIDL), so MailCraft can't tell what is new"
+msgstr ""
+
 #. what a command says
 #: crates/mobile/src/fetch.rs
 #, fuzzy
@@ -15768,6 +15812,16 @@ msgstr "A szerver lehalkította a fiók bejelentkezését. A Send/Receive haszn�
 msgid "The server turned down the sign-in for {name}: sign in again"
 msgstr "A szerver lehalkította a {name} bejelentkezését: jelentkezzen be újra"
 
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "The server wouldn't delete 1 of the messages MailCraft fetched; they are all left there"
+msgstr ""
+
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "The server wouldn't delete {count} of the messages MailCraft fetched; they are all left there"
+msgstr ""
+
 #. interface
 #: crates/ui-egui/src/account_setup/exchange.rs
 #, fuzzy
@@ -15845,6 +15899,11 @@ msgstr "Az alábbi szerverek azok, amelyeket a {domain} a levelezőprogramokhoz 
 #, fuzzy
 msgid "The servers below were found in the DNS records of {domain} (its SRV records). Check them before you connect."
 msgstr "Az alábbi szerverek a {domain} DNS-nyilvántartásában (a SRV-nyilvántartásában) találhatók. Ellenőrizze őket, mielőtt kapcsolatba lépne velük."
+
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "The session ended without the server saying the fetched mail was deleted; it may come again"
+msgstr ""
 
 #. interface
 #: crates/ui-egui/src/settings_notice.rs
@@ -18023,6 +18082,11 @@ msgid "Week starts on"
 msgstr "A hét kezdete"
 
 #. interface
+#: crates/ui-egui/src/account_setup.rs
+msgid "What MailCraft fetches is deleted on the server, and exists only here from then on."
+msgstr ""
+
+#. interface
 #: crates/ui-egui/src/report_problem.rs
 #, fuzzy
 msgid "What happened"
@@ -18926,6 +18990,11 @@ msgstr "a JMAP-fiók szervere és címe nem módosítható, ha a posta itt van: 
 msgid "a Microsoft sign-in is only used with Microsoft's own mail servers: this account names another server"
 msgstr "a Microsoft-bejelentkezés csak a Microsoft saját levelezőszervereivel használható: ez a fiók egy másik kiszolgálót nevez meg"
 
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "a POP server is not signed in to through Microsoft or Google: it takes a password"
+msgstr ""
+
 #. what a command says
 #: crates/engine/src/cmd/calendar.rs
 #, fuzzy
@@ -19305,7 +19374,7 @@ msgid "day"
 msgstr "nap"
 
 #. why a mail server couldn't be used
-#: crates/net/src/sync.rs crates/proto/src/imap/password.rs
+#: crates/net/src/pop.rs crates/net/src/sync.rs crates/proto/src/imap/password.rs
 #, fuzzy
 msgid "enter a password to sign in"
 msgstr "jelszót kell megadnia a bejelentkezéshez"
@@ -20345,7 +20414,7 @@ msgid "the OpenPGP key is larger than a Public key is kept"
 msgstr "A OpenPGP kulcs nagyobb, mint egy nyilvános kulcs."
 
 #. why a mail server couldn't be used
-#: crates/net/src/sync.rs
+#: crates/net/src/pop.rs crates/net/src/sync.rs
 #, fuzzy
 msgid "the account has no incoming server"
 msgstr "a fiókhoz nincs beállítva bejövő levelek kiszolgálója"
@@ -20369,7 +20438,7 @@ msgid "the account has no usable e-mail address to send from"
 msgstr "a fiókhoz nincs használható feladói e-mail-cím"
 
 #. why a mail server couldn't be used
-#: crates/net/src/send.rs crates/net/src/sync.rs
+#: crates/net/src/pop.rs crates/net/src/send.rs crates/net/src/sync.rs
 #, fuzzy
 msgid "the account has no user name or e-mail address to sign in with"
 msgstr "a fiókhoz nincs bejelentkezésre használható felhasználónév vagy e-mail-cím"
@@ -20818,6 +20887,11 @@ msgstr "a szerver és a MailCraft nem talált titkosítás közös; gyakran a sz
 msgid "the server answered a command that wasn't sent"
 msgstr "A kiszolgáló válaszolt egy parancsra, amit nem küldtek el."
 
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server answered a command with neither +OK nor -ERR"
+msgstr ""
+
 #. interface
 #: crates/ui-egui/src/calendar_sync.rs
 #, fuzzy
@@ -20891,6 +20965,11 @@ msgid "the server didn't end IDLE properly"
 msgstr "a kiszolgáló nem fejezte be megfelelően az IDLE-t"
 
 #. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server didn't greet like a POP server: {reason}"
+msgstr ""
+
+#. why a mail server couldn't be used
 #: crates/proto/src/imap/mod.rs
 #, fuzzy
 msgid "the server didn't greet like an IMAP server"
@@ -20915,7 +20994,7 @@ msgid "the server doesn't let this rule be changed"
 msgstr "A szerver nem engedi, hogy ez a szabály megváltozzon."
 
 #. why a mail server couldn't be used
-#: crates/net/src/send.rs crates/net/src/sync.rs
+#: crates/net/src/pop.rs crates/net/src/send.rs crates/net/src/sync.rs
 #, fuzzy
 msgid "the server doesn't offer STARTTLS"
 msgstr "A kiszolgáló nem kínál StartTLS-t"
@@ -20945,10 +21024,20 @@ msgid "the server ended the session: {reason}"
 msgstr "a szerver befejezte a munkamenetet: {reason}"
 
 #. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server gave the same UIDL to two messages"
+msgstr ""
+
+#. why a mail server couldn't be used
 #: crates/proto/src/imap/mod.rs
 #, fuzzy
 msgid "the server greeted with a refusal: {reason}"
 msgstr "a szerver nem fogadta el: {reason}"
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server holds more messages than MailCraft reads"
+msgstr ""
 
 #. why a mail server couldn't be used
 #: crates/proto/src/imap/idle.rs
@@ -20961,6 +21050,16 @@ msgstr "a szerver nem üresjáratú"
 #, fuzzy
 msgid "the server keeps this folder: it can't be renamed, moved or deleted"
 msgstr "a kiszolgáló megtartja ezt a mappát: nem lehet átnevezni, áthelyezni vagy törölni"
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server named a message in a way MailCraft can't keep"
+msgstr ""
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server never said it could start a secure connection"
+msgstr ""
 
 #. why a mail server couldn't be used
 #: crates/proto/src/smtp.rs
@@ -20985,6 +21084,11 @@ msgstr "a szerver csak régebbi titkosítást (CBC suites) kínál, amit a MailC
 #, fuzzy
 msgid "the server refused the connection"
 msgstr "a kiszolgáló elutasította a kapcsolatot"
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server refused {what}: {reason}"
+msgstr ""
 
 #. why a mail server couldn't be used
 #: crates/proto/src/imap/mod.rs
@@ -21023,7 +21127,7 @@ msgid "the server sent a web page instead of a picture"
 msgstr "a szerver egy weboldalt küldött kép helyett"
 
 #. why a mail server couldn't be used
-#: crates/proto/src/imap/mod.rs crates/proto/src/smtp.rs
+#: crates/proto/src/imap/mod.rs crates/proto/src/pop.rs crates/proto/src/smtp.rs
 #, fuzzy
 msgid "the server sent data before the secure connection started"
 msgstr "a kiszolgáló a biztonságos kapcsolat megkezdése előtt küldött adatokat"
@@ -21033,6 +21137,16 @@ msgstr "a kiszolgáló a biztonságos kapcsolat megkezdése előtt küldött ada
 #, fuzzy
 msgid "the server sent data it has no reason to send while idle"
 msgstr "a kiszolgáló küldött adatokat nem kell küldeni, amíg üresjárat"
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server sent more lines than MailCraft reads"
+msgstr ""
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server sent more than MailCraft reads of one answer"
+msgstr ""
 
 #. interface
 #: crates/ui-egui/src/reading/images.rs
@@ -21081,6 +21195,11 @@ msgstr "a szerver túl sokáig tartott, hogy válaszoljon"
 #, fuzzy
 msgid "the server wouldn't send “{subject}” whole, so it can't be forwarded as an attachment"
 msgstr "a kiszolgáló nem adta át a teljes „{subject}” üzenetet, ezért az nem továbbítható mellékletként"
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server's answer to STAT said nothing MailCraft reads"
+msgstr ""
 
 #. why a mail server couldn't be used
 #: crates/proto/src/imap/mod.rs
@@ -21173,7 +21292,7 @@ msgid "the user name or access token is too long to be sent"
 msgstr "a felhasználó neve vagy hozzáférése túl hosszú ahhoz, hogy elküldjék"
 
 #. why a mail server couldn't be used
-#: crates/proto/src/imap/mod.rs crates/proto/src/smtp.rs
+#: crates/proto/src/imap/mod.rs crates/proto/src/pop.rs crates/proto/src/smtp.rs
 #, fuzzy
 msgid "the user name or password has a character that can't be sent"
 msgstr "a felhasználónév vagy jelszó olyan karakterrel rendelkezik, amelyet nem lehet elküldeni"
@@ -23193,6 +23312,16 @@ msgstr[0] "{sent} üzenet elküldve"
 msgstr[1] "{sent} üzenet elküldve"
 
 #. interface
+#: crates/ui-egui/src/backstage.rs
+msgid "{servers} · mail fetched is deleted on the server"
+msgstr ""
+
+#. interface
+#: crates/ui-egui/src/backstage.rs
+msgid "{servers} · mail fetched stays on the server"
+msgstr ""
+
+#. interface
 #: crates/ui-egui/src/account_setup.rs
 #, fuzzy
 msgid "{service} account"
@@ -23299,6 +23428,10 @@ msgstr "a(z) „{subject}” üzenet túl nagy a letöltéshez, ezért csak a fe
 #, fuzzy
 msgid "“{subject}” wasn't found on its server, so it can't be forwarded as an attachment"
 msgstr "~A {subject} ~ nem volt a szerveren, így nem lehet továbbítani, mint egy melléklet"
+
+#, fuzzy
+#~ msgid "MailCraft doesn't support POP yet. Use your provider's IMAP server instead (usually imap.<your domain>, port 993)."
+#~ msgstr "MailCraft még nem támogatja a POP-t. Használja a szolgáltató IMAP szerverét helyette (általában az imap. < domain>, port 993)."
 
 #, fuzzy
 #~ msgid "a .pst file is imported into a calendar on this computer only, never an account on a server"

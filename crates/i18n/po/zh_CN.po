@@ -495,6 +495,11 @@ msgstr "无法从这里将跳过部分日期的重复会议放到服务器日历
 msgid "A message asking to unsubscribe goes from {from} to {to}, through your Outbox."
 msgstr "一封请求退订的邮件将通过发件箱从 {from} 发送到 {to}。"
 
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "A message larger than MailCraft takes stays on the server: it can't be read a part at a time"
+msgstr ""
+
 #. interface
 #: crates/ui-egui/src/updates.rs
 #, fuzzy
@@ -1435,6 +1440,11 @@ msgstr "回复邀请，系统会询问是否通知组织者。"
 #, fuzzy
 msgid "Any other mail server"
 msgstr "任何其他邮件服务器"
+
+#. name
+#: crates/ui-egui/src/account_setup.rs
+msgid "Any other mail server, read with POP"
+msgstr ""
 
 #. interface
 #: crates/ui-egui/src/graph_switch.rs
@@ -3386,7 +3396,7 @@ msgid "Couldn't check"
 msgstr "无法检查"
 
 #. why a mail server couldn't be used
-#: crates/net/src/sync.rs
+#: crates/net/src/pop.rs crates/net/src/sync.rs
 #, fuzzy
 msgid "Couldn't check for new mail"
 msgstr "无法检查新邮件"
@@ -3516,6 +3526,16 @@ msgstr "无法读取“{name}”：服务器未列出该文件夹的 {count} 封
 #, fuzzy
 msgid "Couldn't read Gmail's categories of \"{name}\""
 msgstr "无法读取 Gmail 的“{name}”类别"
+
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "Couldn't read a message of the Inbox"
+msgstr ""
+
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "Couldn't read the account's mail"
+msgstr ""
 
 #. why a mail server couldn't be used
 #: crates/net/src/sync.rs
@@ -6620,6 +6640,11 @@ msgstr "回复时包含原始邮件"
 msgid "Incoming mail (IMAP)"
 msgstr "接收邮件（IMAP）"
 
+#. interface
+#: crates/ui-egui/src/account_setup.rs
+msgid "Incoming mail (POP)"
+msgstr ""
+
 #. command label, ribbon
 #: crates/engine/src/cmd/format.rs crates/ui-egui/src/ribbon.rs
 #, fuzzy
@@ -7312,6 +7337,11 @@ msgid "Leave it not verified"
 msgstr "保留未验证状态"
 
 #. interface
+#: crates/ui-egui/src/account_setup.rs
+msgid "Leave mail on the server after it is fetched"
+msgstr ""
+
+#. interface
 #: crates/ui-egui/src/sync_panel.rs
 #, fuzzy
 msgid "Leave this account out of this Send/Receive"
@@ -7726,12 +7756,6 @@ msgid "MailCraft doesn't rename or move a JMAP account's folders yet: its server
 msgstr "MailCraft 暂不支持重命名或移动 JMAP 账户的文件夹：这些更改不会通知服务器"
 
 #. interface
-#: crates/ui-egui/src/account_setup.rs
-#, fuzzy
-msgid "MailCraft doesn't support POP yet. Use your provider's IMAP server instead (usually imap.<your domain>, port 993)."
-msgstr "MailCraft 尚不支持 POP。请改用服务提供商的 IMAP 服务器（通常为 imap.<your domain>，端口 993）。"
-
-#. interface
 #: crates/ui-egui/src/software.rs
 #, fuzzy
 msgid "MailCraft is drawing without the graphics card, which uses a lot of processor time. Installing or updating the graphics driver usually fixes this."
@@ -7772,6 +7796,11 @@ msgstr "MailCraft 在此最多可保存 {n} 个导入的密钥，目前已达上
 #, fuzzy
 msgid "MailCraft keeps it in memory until you close the app. It is never written to disk."
 msgstr "MailCraft 仅将其保存在内存中，直到您关闭应用；它绝不会写入磁盘。"
+
+#. interface
+#: crates/ui-egui/src/account_setup.rs
+msgid "MailCraft keeps its own copy; what is on the server stays, and comes down once."
+msgstr ""
 
 #. interface
 #: crates/ui-egui/src/security.rs
@@ -10418,6 +10447,11 @@ msgstr "其他"
 #, fuzzy
 msgid "Other (IMAP)"
 msgstr "其他（IMAP）"
+
+#. name
+#: crates/ui-egui/src/account_setup.rs
+msgid "Other (POP)"
+msgstr ""
 
 #. interface
 #: crates/ui-egui/src/calendar_view.rs
@@ -14595,6 +14629,11 @@ msgstr "这不是该文件的密码。"
 msgid "That key is on the card already"
 msgstr "该密钥已在卡上"
 
+#. interface
+#: crates/ui-egui/src/account_setup.rs
+msgid "That looks like a POP server. Pick Other (POP) on the first page, or use your provider's IMAP server (usually imap.<your domain>, port 993)."
+msgstr ""
+
 #. what a command says
 #: crates/mobile/src/sync.rs crates/mobile/src/sync_api.rs
 #, fuzzy
@@ -15670,6 +15709,11 @@ msgstr "服务器的响应中未提供 Exchange Web 服务地址。请向管理�
 msgid "The server answered, but not as an Exchange server does. Check its address in Server settings."
 msgstr "服务器已响应，但响应与 Exchange 服务器不符。请在服务器设置中检查地址。"
 
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "The server can't name its messages (no UIDL), so MailCraft can't tell what is new"
+msgstr ""
+
 #. what a command says
 #: crates/mobile/src/fetch.rs
 #, fuzzy
@@ -15766,6 +15810,16 @@ msgstr "服务器拒绝了此账户的登录请求。请使用“发送/接收�
 msgid "The server turned down the sign-in for {name}: sign in again"
 msgstr "服务器拒绝了 {name} 的登录请求：请重新登录"
 
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "The server wouldn't delete 1 of the messages MailCraft fetched; they are all left there"
+msgstr ""
+
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "The server wouldn't delete {count} of the messages MailCraft fetched; they are all left there"
+msgstr ""
+
 #. interface
 #: crates/ui-egui/src/account_setup/exchange.rs
 #, fuzzy
@@ -15843,6 +15897,11 @@ msgstr "以下服务器是 {domain} 向邮件程序发布的（其 autoconfig �
 #, fuzzy
 msgid "The servers below were found in the DNS records of {domain} (its SRV records). Check them before you connect."
 msgstr "以下服务器是在 {domain} 的 DNS 记录（其 SRV 记录）中找到的。连接之前请先检查。"
+
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "The session ended without the server saying the fetched mail was deleted; it may come again"
+msgstr ""
 
 #. interface
 #: crates/ui-egui/src/settings_notice.rs
@@ -18014,6 +18073,11 @@ msgid "Week starts on"
 msgstr "一周的第一天"
 
 #. interface
+#: crates/ui-egui/src/account_setup.rs
+msgid "What MailCraft fetches is deleted on the server, and exists only here from then on."
+msgstr ""
+
+#. interface
 #: crates/ui-egui/src/report_problem.rs
 #, fuzzy
 msgid "What happened"
@@ -18923,6 +18987,11 @@ msgstr "JMAP 账户的邮件下载到此处后，服务器和地址便无法更�
 msgid "a Microsoft sign-in is only used with Microsoft's own mail servers: this account names another server"
 msgstr "Microsoft 登录只能用于 Microsoft 自有的邮件服务器：此账户指定了其他服务器"
 
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "a POP server is not signed in to through Microsoft or Google: it takes a password"
+msgstr ""
+
 #. what a command says
 #: crates/engine/src/cmd/calendar.rs
 #, fuzzy
@@ -19299,7 +19368,7 @@ msgid "day"
 msgstr "日"
 
 #. why a mail server couldn't be used
-#: crates/net/src/sync.rs crates/proto/src/imap/password.rs
+#: crates/net/src/pop.rs crates/net/src/sync.rs crates/proto/src/imap/password.rs
 #, fuzzy
 msgid "enter a password to sign in"
 msgstr "输入密码登录"
@@ -20339,7 +20408,7 @@ msgid "the OpenPGP key is larger than a Public key is kept"
 msgstr "OpenPGP 密钥超过公钥可保存的大小上限"
 
 #. why a mail server couldn't be used
-#: crates/net/src/sync.rs
+#: crates/net/src/pop.rs crates/net/src/sync.rs
 #, fuzzy
 msgid "the account has no incoming server"
 msgstr "此账户没有收件服务器"
@@ -20363,7 +20432,7 @@ msgid "the account has no usable e-mail address to send from"
 msgstr "此账户没有可用于发信的电子邮件地址"
 
 #. why a mail server couldn't be used
-#: crates/net/src/send.rs crates/net/src/sync.rs
+#: crates/net/src/pop.rs crates/net/src/send.rs crates/net/src/sync.rs
 #, fuzzy
 msgid "the account has no user name or e-mail address to sign in with"
 msgstr "此账户没有可用于登录的用户名或电子邮件地址"
@@ -20812,6 +20881,11 @@ msgstr "服务器与 MailCraft 没有共同支持的加密方式；服务器可�
 msgid "the server answered a command that wasn't sent"
 msgstr "服务器应答了未发送的命令"
 
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server answered a command with neither +OK nor -ERR"
+msgstr ""
+
 #. interface
 #: crates/ui-egui/src/calendar_sync.rs
 #, fuzzy
@@ -20885,6 +20959,11 @@ msgid "the server didn't end IDLE properly"
 msgstr "服务器没有正确结束 IDLE"
 
 #. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server didn't greet like a POP server: {reason}"
+msgstr ""
+
+#. why a mail server couldn't be used
 #: crates/proto/src/imap/mod.rs
 #, fuzzy
 msgid "the server didn't greet like an IMAP server"
@@ -20909,7 +20988,7 @@ msgid "the server doesn't let this rule be changed"
 msgstr "服务器不允许更改此规则"
 
 #. why a mail server couldn't be used
-#: crates/net/src/send.rs crates/net/src/sync.rs
+#: crates/net/src/pop.rs crates/net/src/send.rs crates/net/src/sync.rs
 #, fuzzy
 msgid "the server doesn't offer STARTTLS"
 msgstr "服务器不提供 STARTTLS"
@@ -20939,10 +21018,20 @@ msgid "the server ended the session: {reason}"
 msgstr "服务器结束会话：{reason}"
 
 #. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server gave the same UIDL to two messages"
+msgstr ""
+
+#. why a mail server couldn't be used
 #: crates/proto/src/imap/mod.rs
 #, fuzzy
 msgid "the server greeted with a refusal: {reason}"
 msgstr "服务器在问候响应中拒绝连接：{reason}"
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server holds more messages than MailCraft reads"
+msgstr ""
 
 #. why a mail server couldn't be used
 #: crates/proto/src/imap/idle.rs
@@ -20955,6 +21044,16 @@ msgstr "服务器未处于空闲等待状态"
 #, fuzzy
 msgid "the server keeps this folder: it can't be renamed, moved or deleted"
 msgstr "此文件夹由服务器保留：无法重命名、移动或删除"
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server named a message in a way MailCraft can't keep"
+msgstr ""
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server never said it could start a secure connection"
+msgstr ""
 
 #. why a mail server couldn't be used
 #: crates/proto/src/smtp.rs
@@ -20979,6 +21078,11 @@ msgstr "服务器只提供 MailCraft 不使用的旧加密方式（CBC 套件）
 #, fuzzy
 msgid "the server refused the connection"
 msgstr "服务器拒绝连接"
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server refused {what}: {reason}"
+msgstr ""
 
 #. why a mail server couldn't be used
 #: crates/proto/src/imap/mod.rs
@@ -21017,7 +21121,7 @@ msgid "the server sent a web page instead of a picture"
 msgstr "服务器发送了网页而不是图片"
 
 #. why a mail server couldn't be used
-#: crates/proto/src/imap/mod.rs crates/proto/src/smtp.rs
+#: crates/proto/src/imap/mod.rs crates/proto/src/pop.rs crates/proto/src/smtp.rs
 #, fuzzy
 msgid "the server sent data before the secure connection started"
 msgstr "服务器在安全连接建立前发送了数据"
@@ -21027,6 +21131,16 @@ msgstr "服务器在安全连接建立前发送了数据"
 #, fuzzy
 msgid "the server sent data it has no reason to send while idle"
 msgstr "服务器在空闲等待期间发送了不应发送的数据"
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server sent more lines than MailCraft reads"
+msgstr ""
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server sent more than MailCraft reads of one answer"
+msgstr ""
 
 #. interface
 #: crates/ui-egui/src/reading/images.rs
@@ -21075,6 +21189,11 @@ msgstr "服务器响应时间过长"
 #, fuzzy
 msgid "the server wouldn't send “{subject}” whole, so it can't be forwarded as an attachment"
 msgstr "服务器未完整发送“{subject}”，因此无法将其作为附件转发"
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server's answer to STAT said nothing MailCraft reads"
+msgstr ""
 
 #. why a mail server couldn't be used
 #: crates/proto/src/imap/mod.rs
@@ -21167,7 +21286,7 @@ msgid "the user name or access token is too long to be sent"
 msgstr "用户名或访问令牌太长而无法发送"
 
 #. why a mail server couldn't be used
-#: crates/proto/src/imap/mod.rs crates/proto/src/smtp.rs
+#: crates/proto/src/imap/mod.rs crates/proto/src/pop.rs crates/proto/src/smtp.rs
 #, fuzzy
 msgid "the user name or password has a character that can't be sent"
 msgstr "用户名或密码含有无法发送的字符"
@@ -23085,6 +23204,16 @@ msgid_plural "{sent} messages sent"
 msgstr[0] "已发送 {sent} 封邮件"
 
 #. interface
+#: crates/ui-egui/src/backstage.rs
+msgid "{servers} · mail fetched is deleted on the server"
+msgstr ""
+
+#. interface
+#: crates/ui-egui/src/backstage.rs
+msgid "{servers} · mail fetched stays on the server"
+msgstr ""
+
+#. interface
 #: crates/ui-egui/src/account_setup.rs
 #, fuzzy
 msgid "{service} account"
@@ -23191,6 +23320,10 @@ msgstr "“{subject}”太大，无法下载：此处只有邮件头，因此无
 #, fuzzy
 msgid "“{subject}” wasn't found on its server, so it can't be forwarded as an attachment"
 msgstr "在其服务器上找不到“{subject}”，因此无法将其作为附件转发"
+
+#, fuzzy
+#~ msgid "MailCraft doesn't support POP yet. Use your provider's IMAP server instead (usually imap.<your domain>, port 993)."
+#~ msgstr "MailCraft 尚不支持 POP。请改用服务提供商的 IMAP 服务器（通常为 imap.<your domain>，端口 993）。"
 
 #, fuzzy
 #~ msgid "a .pst file is imported into a calendar on this computer only, never an account on a server"

@@ -44,6 +44,12 @@ pub struct FolderState {
     pub uid_from: u32,
     /// UIDs of the messages the mailbox has in this folder (to notice deletions and flag changes).
     pub known_uids: Vec<u32>,
+    /// A POP folder's UIDLs (RFC 1939 §3.5), in the order the server listed them, standing for
+    /// [`FolderState::known_uids`] one for one: what a POP account's Inbox is known by, since POP
+    /// has no UIDs of its own. A UIDL not in this list is a message not seen, whatever a UID
+    /// hashed from another UIDL might say. Empty for every other kind of account.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub pop_uidls: Vec<String>,
     /// UIDs of messages here that are to be downloaded again, whole, to be read anew (#650:
     /// mail kept with U+FFFD). A few at a time; the run asks for them without setting `\Seen`.
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -581,6 +587,11 @@ pub struct FolderDelta {
     pub flags: Vec<RemoteFlags>,
     /// UIDs the mailbox has that the server no longer does.
     pub removed: Vec<u32>,
+    /// A POP Inbox's UIDLs as the server listed them this run (with the piece that ends the
+    /// folder's reading), to be kept in [`FolderState::pop_uidls`]; empty from every other kind
+    /// of server.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub pop_uidls: Vec<String>,
     /// This piece ends the folder's reading and everything that was wanted of it came (#504):
     /// the folder has been read whole once ([`crate::Folder::read_whole`]).
     #[serde(skip_serializing_if = "is_false")]
@@ -952,6 +963,7 @@ impl SyncResult {
                         refetch_refused,
                         gmail,
                         gmail_labels,
+                        pop_uidls,
                     } = delta;
                     folder.id = folder.id.or(id);
                     // The mailbox is read as far as the piece that got furthest says.
@@ -968,6 +980,9 @@ impl SyncResult {
                     folder.refetch_refused.extend(refetch_refused);
                     folder.gmail.extend(gmail);
                     folder.gmail_labels.extend(gmail_labels);
+                    if !pop_uidls.is_empty() {
+                        folder.pop_uidls = pop_uidls;
+                    }
                     folder.complete |= complete;
                     if status.is_some() {
                         folder.status = status;

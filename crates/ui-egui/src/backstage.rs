@@ -128,6 +128,19 @@ pub(crate) fn account_detail(app: &MailApp, a: &mailcraft_model::Account) -> Str
         AccountKind::Jmap => jmap_line(a),
         // An Exchange server account names its server, and says why it isn't kept in step.
         AccountKind::Exchange => ews_line(app, a),
+        // A POP account's Inbox is downloaded alone; what is fetched is left on its server.
+        AccountKind::Pop => {
+            let servers = format!(
+                "{} · {}",
+                server(&a.incoming).map_or(tl!("no incoming server").to_string(), |h| format!("POP {h}")),
+                server(&a.outgoing).map_or(tl!("no outgoing server").to_string(), |h| format!("SMTP {h}"))
+            );
+            if a.pop_options().leave_mail {
+                crate::i18n::fmt(tl!("{servers} · mail fetched stays on the server"), &[("servers", &servers)])
+            } else {
+                crate::i18n::fmt(tl!("{servers} · mail fetched is deleted on the server"), &[("servers", &servers)])
+            }
+        }
         // Kept as its file has it: this version neither sends nor receives with it.
         AccountKind::Unknown => tl!("Added by a newer version of MailCraft: send and receive with it there").to_string(),
         AccountKind::Imap => {

@@ -215,7 +215,7 @@ fn exchange_server_is_offered_only_by_choice() {
     assert_eq!(page(&h), Some(Page::Choose));
     assert!(h.query_by_role_and_label(Role::Button, TILE).is_some());
     assert!(h.query_by_role_and_label(Role::Button, "Other (IMAP)").is_some());
-    assert_eq!(Kind::tiles().last(), Some(&Kind::Exchange));
+    assert!(Kind::tiles().contains(&Kind::Exchange), "the Exchange tile is still offered by choice");
     // An ordinary Connect doesn't pick it.
     let mut a = app();
     let host = Host::default();

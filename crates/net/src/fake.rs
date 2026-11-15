@@ -1184,3 +1184,156 @@ fn serve_smtp(stream: TcpStream, shared: Arc<Mutex<SmtpWorld>>) {
         }
     }
 }
+
+/// A message of the fake POP server's mailbox: its UIDL and its bytes.
+#[derive(Clone)]
+pub(crate) struct FakePopMessage {
+    pub(crate) uidl: String,
+    pub(crate) body: Vec<u8>,
+}
+
+#[derive(Default)]
+pub(crate) struct PopWorld {
+    pub(crate) user: String,
+    pub(crate) password: String,
+    /// Refuse the user name or the password.
+    pub(crate) refuse_login: bool,
+    /// Say UIDL and TOP in CAPA; a server without this doesn't know either.
+    pub(crate) uidl_and_top: bool,
+    /// Refuse this command (as it stands, upper case, e.g. `UIDL`).
+    pub(crate) refuse: Vec<String>,
+    /// Hang up instead of answering this command.
+    pub(crate) hang_up_on: Option<String>,
+    pub(crate) messages: Vec<FakePopMessage>,
+    /// The UIDL of each message a QUIT made the server drop.
+    pub(crate) dropped: Vec<String>,
+    /// Every line received.
+    pub(crate) log: Vec<String>,
+    pub(crate) sign_ins: usize,
+}
+
+pub(crate) type FakePop = Fake<PopWorld>;
+
+impl Fake<PopWorld> {
+    pub(crate) fn pop(world: PopWorld) -> FakePop {
+        Fake::start(world, serve_pop)
+    }
+}
+
+/// What one message looks like on the wire, without its ending: its number (1 up) and its size,
+/// or its UIDL. (The writer adds the last CRLF.)
+fn pop_line(messages: &[FakePopMessage], f: impl Fn(&FakePopMessage) -> String) -> String {
+    let mut out = String::new();
+    for (n, m) in messages.iter().enumerate() {
+        out.push_str(&format!("{} {}\r\n", n + 1, f(m)));
+    }
+    out.push('.');
+    out
+}
+
+/// One message whole, byte-stuffed (RFC 1939 §3) and ended with its dot.
+fn pop_message(body: &[u8]) -> Vec<u8> {
+    let mut out = Vec::new();
+    for line in body.split(|b| *b == b'\n') {
+        let line = line.strip_suffix(b"\r").unwrap_or(line);
+        if line.first() == Some(&b'.') {
+            out.push(b'.');
+        }
+        out.extend_from_slice(line);
+        out.extend_from_slice(b"\r\n");
+    }
+    out.extend_from_slice(b".\r\n");
+    out
+}
+
+/// Serve one POP3 session.
+fn serve_pop(stream: TcpStream, shared: Arc<Mutex<PopWorld>>) {
+    let (mut reader, mut out) = (BufReader::new(stream.try_clone().unwrap()), stream);
+    if out.write_all(b"+OK fake pop ready\r\n").is_err() {
+        return;
+    }
+    let (mut user, mut signed) = (String::new(), false);
+    let mut marked: Vec<u32> = Vec::new();
+    loop {
+        let Some(line) = read_line(&mut reader) else { return };
+        let upper = line.trim().to_ascii_uppercase();
+        shared.lock().unwrap().log.push(line.clone());
+        let mut world = shared.lock().unwrap();
+        let answer = if world.hang_up_on.as_ref().is_some_and(|on| upper.contains(on.as_str())) {
+            drop(world);
+            return;
+        } else if world.refuse.iter().any(|r| upper.contains(r.as_str())) {
+            "-ERR not now".to_string()
+        } else if upper == "CAPA" {
+            let uidl = if world.uidl_and_top { "UIDL\r\nTOP\r\n" } else { "" };
+            format!("+OK\r\n{uidl}.")
+        } else if upper.starts_with("USER ") {
+            if world.refuse_login {
+                "-ERR no such user".to_string()
+            } else {
+                user = line.trim()[5..].to_string();
+                "+OK user".to_string()
+            }
+        } else if upper.starts_with("PASS ") {
+            if world.refuse_login || user != world.user || line.trim()[5..] != world.password {
+                "-ERR wrong".to_string()
+            } else {
+                world.sign_ins += 1;
+                signed = true;
+                "+OK signed in".to_string()
+            }
+        } else if !signed {
+            "-ERR sign in first".to_string()
+        } else if upper == "STAT" {
+            let bytes: u64 = world.messages.iter().map(|m| m.body.len() as u64).sum();
+            format!("+OK {} {bytes}", world.messages.len())
+        } else if upper == "LIST" {
+            format!("+OK\r\n{}", pop_line(&world.messages, |m| m.body.len().to_string()))
+        } else if upper == "UIDL" {
+            if !world.uidl_and_top { "-ERR no UIDL here".to_string() } else { format!("+OK\r\n{}", pop_line(&world.messages, |m| m.uidl.clone())) }
+        } else if upper == "RSET" {
+            marked.clear();
+            "+OK".to_string()
+        } else if upper == "NOOP" {
+            "+OK".to_string()
+        } else if upper == "QUIT" {
+            // The marks happen: what was marked leaves, known by its UIDL.
+            let mut messages = std::mem::take(&mut world.messages);
+            let dropped: Vec<String> =
+                messages.iter().enumerate().filter(|(n, _)| marked.contains(&(*n as u32 + 1))).map(|(_, m)| m.uidl.clone()).collect();
+            messages.retain(|m| !dropped.contains(&m.uidl));
+            world.messages = messages;
+            world.dropped.extend(dropped);
+            drop(world);
+            let _ = out.write_all(b"+OK bye\r\n");
+            return;
+        } else if let Some(rest) = upper.strip_prefix("DELE ") {
+            match rest.trim().parse::<u32>().ok().filter(|n| *n >= 1).map(|n| n as usize - 1).filter(|at| *at < world.messages.len()) {
+                Some(at) => {
+                    marked.push(at as u32 + 1);
+                    "+OK marked".to_string()
+                }
+                None => "-ERR no such message".to_string(),
+            }
+        } else if let Some(rest) = upper.strip_prefix("RETR ").or_else(|| upper.strip_prefix("TOP ")) {
+            // TOP's second argument is taken no notice of: headers and a little body come whole.
+            let n = rest.split_whitespace().next().and_then(|n| n.parse::<usize>().ok()).filter(|n| *n >= 1);
+            match n.map(|n| n - 1).filter(|at| *at < world.messages.len()) {
+                Some(at) => {
+                    let body = world.messages[at].body.clone();
+                    drop(world);
+                    let _ = out.write_all(b"+OK octets\r\n");
+                    let _ = out.write_all(&pop_message(&body));
+                    continue;
+                }
+                None => "-ERR no such message".to_string(),
+            }
+        } else {
+            "-ERR what".to_string()
+        };
+        drop(world);
+        if out.write_all(format!("{answer}\r\n").as_bytes()).is_err() {
+            return;
+        }
+    }
+}

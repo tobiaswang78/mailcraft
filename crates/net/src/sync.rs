@@ -52,8 +52,8 @@ const MAX_GMAIL_FOUND: usize = mailcraft_proto::imap::MAX_GMAIL_FOUND;
 /// Most messages of one mailbox downloaded again in one run (#650).
 const MAX_AGAIN: usize = 100;
 /// Most new messages handed over in one piece, and most bytes of them...
-const BATCH_MESSAGES: usize = 50;
-const BATCH_BYTES: usize = 4 * 1024 * 1024;
+pub(crate) const BATCH_MESSAGES: usize = 50;
+pub(crate) const BATCH_BYTES: usize = 4 * 1024 * 1024;
 /// ...and the longest that messages which have arrived wait for the piece to fill.
 const BATCH_WAIT: Duration = Duration::from_secs(1);
 /// The header a message kept without its text has, for a program to know it by: its size on
@@ -168,7 +168,13 @@ pub(crate) fn sync_as(request: &SyncRequest, limits: Limits, host: Host, cancel:
         counted: 0,
     };
     let sent = send_outbox(&mut run);
-    let imap = exchange(&mut run, &sent, host);
+    // A POP account has no folders to list and nothing to push: its Inbox comes down alone.
+    let imap = if request.account.kind == mailcraft_model::AccountKind::Pop {
+        crate::pop::exchange_pop(&mut run);
+        None
+    } else {
+        exchange(&mut run, &sent, host)
+    };
     if let Some(imap) = &imap {
         run.note(imap);
     }
@@ -188,8 +194,8 @@ fn blank(request: &SyncRequest) -> SyncResult {
 /// A run under way: what it was asked, how far it may go, and where its pieces go.
 pub(crate) struct Run<'a> {
     pub(crate) request: &'a SyncRequest,
-    limits: Limits,
-    cancel: &'a AtomicBool,
+    pub(crate) limits: Limits,
+    pub(crate) cancel: &'a AtomicBool,
     emit: &'a mut dyn FnMut(SyncResult),
     /// What happened since the last piece was handed over.
     pub(crate) out: SyncResult,
@@ -266,7 +272,7 @@ impl Run<'_> {
 
     /// Note that something went wrong: `what`, and why. A command cut short because the run was
     /// called off is nothing to tell. Returns whether the connection is still good.
-    fn failed(&mut self, what: Text, error: &NetError) -> bool {
+    pub(crate) fn failed(&mut self, what: Text, error: &NetError) -> bool {
         if matches!(error, NetError::Proto(ProtoError::Io(why)) if why.to_string() == transport::STOPPED) {
             self.stopped = true;
         } else {
@@ -1046,7 +1052,7 @@ fn message_from(fetched: Fetched) -> Message {
 /// shows, and the header [`NOT_DOWNLOADED`] for other programs). It has its UID like any other
 /// message, so it is not asked for again; flags, moves and deletions reach the whole message on
 /// the server.
-fn too_large(header: Fetched, size: u64, largest: u64) -> Message {
+pub(crate) fn too_large(header: Fetched, size: u64, largest: u64) -> Message {
     let mut message = message_from(header);
     message.attachments.clear();
     // (Its header alone is no original of it, #30.)
@@ -1184,6 +1190,7 @@ impl FolderSync<'_> {
             refetch_too_large: Vec::new(),
             refetch_refused: Vec::new(),
             gmail: Vec::new(),
+            pop_uidls: Vec::new(),
             // Gmail's labels of the messages already here, said once with their flags.
             gmail_labels: if self.labels {
                 known
