@@ -461,6 +461,7 @@ fn kind_name(kind: AccountKind) -> &'static str {
         AccountKind::Microsoft => "a Microsoft account",
         AccountKind::Jmap => "a JMAP account",
         AccountKind::Exchange => "an Exchange server account",
+        AccountKind::Pop => "a POP account",
         AccountKind::Unknown => "an account of a newer MailCraft",
     }
 }
@@ -473,6 +474,7 @@ fn kind_word(kind: AccountKind) -> &'static str {
         AccountKind::Microsoft => "microsoft",
         AccountKind::Jmap => "jmap",
         AccountKind::Exchange => "exchange",
+        AccountKind::Pop => "pop",
         AccountKind::Unknown => "unknown",
     }
 }

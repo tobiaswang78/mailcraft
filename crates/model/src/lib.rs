@@ -84,6 +84,7 @@ pub use message::{
 pub use messages::Messages;
 pub use note::{JournalEntry, Note};
 pub use offline::{KeepOffline, OfflineWindow};
+pub use pop::PopOptions;
 pub use remote::{AccountChoice, Origin};
 pub use rich::{RichBody, RichText};
 pub use rule::{Action, Condition, Keep, MAX_RULE_GONE, Rule, RuleGone, ServerRule};

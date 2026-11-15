@@ -54,6 +54,8 @@ pub(crate) const STOPPED: &str = "Send/Receive was stopped";
 pub(crate) enum Service {
     Imap,
     Smtp,
+    /// A POP3 server (RFC 1939): reads the Inbox alone.
+    Pop,
     /// A web server: the token endpoint of an OAuth sign-in, a name server that answers over HTTPS.
     Http,
 }
@@ -216,6 +218,8 @@ pub(crate) fn port(server: &Server, service: Service) -> u16 {
     match (server.port, service, server.security) {
         (0, Service::Imap, Security::Tls) => 993,
         (0, Service::Imap, _) => 143,
+        (0, Service::Pop, Security::Tls) => 995,
+        (0, Service::Pop, _) => 110,
         (0, Service::Smtp, Security::Tls) => 465,
         (0, Service::Smtp, _) => 587,
         (0, Service::Http, Security::Tls) => 443,

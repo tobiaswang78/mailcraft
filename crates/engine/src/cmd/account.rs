@@ -16,7 +16,7 @@ use mailcraft_model::sync::{
 };
 use mailcraft_model::{
     Account, AccountKind, Directory, EwsServer, FlagStatus, Folder, FolderKind, Id, JmapServer, MailIdentity, Mailbox, Message, OAuth, OAuthProvider,
-    Pending, Queued, Rgb, Security, Server, clean_name,
+    Pending, PopOptions, Queued, Rgb, Security, Server, clean_name,
 };
 use serde_json::{Value, json};
 
@@ -45,7 +45,7 @@ pub fn specs() -> Vec<CommandSpec> {
     ]
 }
 
-const ACCOUNT: &str = r##"{"email": string, "displayName"?: string, "name"?: string (what the folder pane calls the account; empty: its address), "username"?: string, "incoming"?: {"host": string, "port"?: number, "security"?: "tls"|"starttls"|"none"} | null, "outgoing"?: same | null, "auth"?: "password"|"oauth2" (oauth2: sign in on the provider's page), "provider"?: "microsoft"|"google", "clientId"?: string, "tenant"?: string, "directory"?: "organisation"|"personal" (which kind of Microsoft account signs in, when the sign-in said), "kind"?: "imap"|"local"|"microsoft"|"jmap"|"exchange" (microsoft: kept in step through Microsoft Graph, no mail servers; jmap: kept in step over JMAP, no mail servers; exchange: an Exchange server account, kept in step through Exchange Web Services, no mail servers), "ews"?: {"url": string (the https:// address of the server's Exchange Web Services, `…/EWS/Exchange.asmx`), "username"?: string (DOMAIN\user or a UPN; default the e-mail address), "trusted"?: string (the SHA-256 fingerprint of the one certificate trusted for this account besides the system's)} (an Exchange server account's server; the password is never a setting), "jmap"?: {"session": string (the https:// address of the server's JMAP session resource), "bearer"?: bool (the secret is a bearer token, not the account's password)} (a JMAP account's server; the secret is never a setting), "color"?: "#RRGGBB" | null (the account's colour: a dot by its name in the folder pane and a stripe on its mail in a list of more than one account's; a new account is given one of the palette's that no other has unless this says, null for none)}"##;
+const ACCOUNT: &str = r##"{"email": string, "displayName"?: string, "name"?: string (what the folder pane calls the account; empty: its address), "username"?: string, "incoming"?: {"host": string, "port"?: number, "security"?: "tls"|"starttls"|"none"} | null, "outgoing"?: same | null, "auth"?: "password"|"oauth2" (oauth2: sign in on the provider's page), "provider"?: "microsoft"|"google", "clientId"?: string, "tenant"?: string, "directory"?: "organisation"|"personal" (which kind of Microsoft account signs in, when the sign-in said), "kind"?: "imap"|"local"|"pop"|"microsoft"|"jmap"|"exchange" (microsoft: kept in step through Microsoft Graph, no mail servers; jmap: kept in step over JMAP, no mail servers; exchange: an Exchange server account, kept in step through Exchange Web Services, no mail servers; pop: a POP3 account, its Inbox downloaded alone, with an incoming and an outgoing server), "pop"?: {"leaveMail"?: bool (what is fetched stays on the server; the default), "leaveDays"?: number (for how long, 0 for forever, 3650 at most)} (a POP account's choice about the server side), "ews"?: {"url": string (the https:// address of the server's Exchange Web Services, `…/EWS/Exchange.asmx`), "username"?: string (DOMAIN\user or a UPN; default the e-mail address), "trusted"?: string (the SHA-256 fingerprint of the one certificate trusted for this account besides the system's)} (an Exchange server account's server; the password is never a setting), "jmap"?: {"session": string (the https:// address of the server's JMAP session resource), "bearer"?: bool (the secret is a bearer token, not the account's password)} (a JMAP account's server; the secret is never a setting), "color"?: "#RRGGBB" | null (the account's colour: a dot by its name in the folder pane and a stripe on its mail in a list of more than one account's; a new account is given one of the palette's that no other has unless this says, null for none)}"##;
 
 fn has_server(s: &Session) -> Option<&'static str> {
     if s.mailbox.accounts.iter().any(|a| a.kind.has_server()) {
@@ -327,8 +327,9 @@ fn apply_fields(a: &mut Account, v: &Value) -> Result<(), CmdError> {
         Some(k) if k == "microsoft" || k == "graph" => AccountKind::Microsoft,
         Some(k) if k == "jmap" => AccountKind::Jmap,
         Some(k) if k == "exchange" => AccountKind::Exchange,
+        Some(k) if k == "pop" || k == "pop3" => AccountKind::Pop,
         Some(k) if k == "imap" || k == "local" => AccountKind::Imap,
-        Some(_) => return Err(bad("`kind` is imap, local, microsoft, jmap or exchange")),
+        Some(_) => return Err(bad("`kind` is imap, local, pop, microsoft, jmap or exchange")),
     };
     match kind {
         AccountKind::Microsoft => {
@@ -353,15 +354,47 @@ fn apply_fields(a: &mut Account, v: &Value) -> Result<(), CmdError> {
             a.kind = AccountKind::Exchange;
             (a.incoming, a.outgoing, a.oauth, a.jmap) = (None, None, None, None);
         }
+        AccountKind::Pop => {
+            // POP and nothing else (#402): an incoming server (the Inbox comes down alone) and
+            // an SMTP server to send through, and how what comes is left on the server. No
+            // sign-in with a provider: a POP server takes a password.
+            a.pop = Some(pop_options(v, a.pop.unwrap_or_default())?);
+            a.kind = AccountKind::Pop;
+            (a.jmap, a.ews, a.oauth) = (None, None, None);
+        }
         _ => {
             a.kind = if a.incoming.is_some() || a.outgoing.is_some() { AccountKind::Imap } else { AccountKind::Local };
-            (a.jmap, a.ews) = (None, None);
+            (a.jmap, a.ews, a.pop) = (None, None, None);
         }
     }
     if a.name.is_empty() {
         a.name = a.email.clone();
     }
     Ok(())
+}
+
+/// How a POP account's mail is left on its server, from `pop` in a command's params, over
+/// `before` (what it has, when it has an answer): `leaveMail`, whether what is fetched stays on
+/// the server, and `leaveDays`, for how long (0 for forever, [`PopOptions::MAX_DAYS`] at most).
+/// What is not said stays as it was; a new account starts at the POP norm (left, forever).
+fn pop_options(v: &Value, mut before: PopOptions) -> Result<PopOptions, CmdError> {
+    if let Some(given) = v.get("pop").filter(|p| p.is_object()) {
+        match given.get("leaveMail") {
+            None => {}
+            Some(Value::Bool(leave)) => before.leave_mail = *leave,
+            Some(_) => return Err(bad("`pop.leaveMail` is true or false")),
+        }
+        match given.get("leaveDays") {
+            None => {}
+            Some(Value::Number(days)) => {
+                let days = days.as_u64().ok_or_else(|| bad("`pop.leaveDays` is a whole number of days, 0 for forever"))?;
+                before.leave_days = u32::try_from(days).map_err(|_| bad("`pop.leaveDays` is a whole number of days, 0 for forever"))?;
+            }
+            Some(_) => return Err(bad("`pop.leaveDays` is a whole number of days, 0 for forever")),
+        }
+    }
+    before.clamp();
+    Ok(before)
 }
 
 /// A JMAP account's server from `jmap` in a command's params, over `before` (what it has, when it
@@ -831,7 +864,9 @@ pub fn sync_request(s: &Session, account: Id) -> Result<SyncRequest, CmdError> {
     if a.kind == AccountKind::Exchange {
         return Err(fail(super::ews_mail::NOT_IMAP));
     }
-    if a.kind != AccountKind::Imap {
+    // A POP account is kept in step too: its Inbox comes down alone, through the same request
+    // (`kind` tells the runner which half to run).
+    if !matches!(a.kind, AccountKind::Imap | AccountKind::Pop) {
         return Err(failed!("{name} isn't connected to a mail server", name = a.name));
     }
     let outbox_folder = s.mailbox.folder_of_kind(account, FolderKind::Outbox);
@@ -874,6 +909,7 @@ pub fn sync_request(s: &Session, account: Id) -> Result<SyncRequest, CmdError> {
             uid_seen: f.uid_seen,
             uid_from: f.uid_from,
             known_uids: known.remove(&f.id).unwrap_or_default(),
+            pop_uidls: f.pop_uidls.clone(),
             again: again.remove(&f.id).unwrap_or_default(),
             // Good to pass the folder over by until the next reading in full is due (#276).
             status: f.imap_status.filter(|st| (0..super::graph_mail::FULL_SWEEP_EVERY).contains(&now.saturating_sub(st.at))),
@@ -2365,6 +2401,11 @@ fn take_in(
         f.uid_seen = if reset { delta.uid_seen } else { delta.uid_seen.max(old_seen) };
         if reset || delta.uid_from != 0 {
             f.uid_from = delta.uid_from;
+        }
+        // A POP account's Inbox: the UIDLs the server said it has now are what it has of ours
+        // ([`Folder::pop_uidls`]). They arrive whole, with the run's one piece.
+        if !delta.pop_uidls.is_empty() {
+            f.pop_uidls = delta.pop_uidls.clone();
         }
     }
 }

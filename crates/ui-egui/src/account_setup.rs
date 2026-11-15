@@ -108,6 +108,8 @@ pub enum Kind {
     ICloud,
     /// Any other mail server.
     Other,
+    /// Any other mail server, reached through POP3: its Inbox comes down alone (#402).
+    Pop,
     /// A mailbox on this device, with no server.
     Local,
     /// An Exchange server the owner's organisation runs itself (#252).
@@ -123,6 +125,7 @@ impl Kind {
     fn tiles() -> Vec<Kind> {
         let mut tiles = Kind::HOSTED.to_vec();
         tiles.push(Kind::Exchange);
+        tiles.push(Kind::Pop);
         tiles
     }
 
@@ -134,7 +137,7 @@ impl Kind {
             Kind::Google => Some("google"),
             Kind::Yahoo => Some("yahoo"),
             Kind::ICloud => Some("icloud"),
-            Kind::Other | Kind::Local | Kind::Exchange => None,
+            Kind::Other | Kind::Local | Kind::Exchange | Kind::Pop => None,
         }
     }
 
@@ -148,6 +151,7 @@ impl Kind {
             Kind::Other => "Other (IMAP)",
             Kind::Local => "This device only",
             Kind::Exchange => "Exchange server (your organisation's own)",
+            Kind::Pop => "Other (POP)",
         }
     }
 
@@ -161,6 +165,7 @@ impl Kind {
             Kind::Other => "Any other mail server",
             Kind::Local => "A mailbox kept here, with no mail server",
             Kind::Exchange => "A mail server your organisation runs itself",
+            Kind::Pop => "Any other mail server, read with POP",
         }
     }
 
@@ -169,7 +174,7 @@ impl Kind {
         match self {
             Kind::Microsoft365 => "work",
             Kind::OutlookCom | Kind::Google | Kind::Yahoo | Kind::ICloud => "mail",
-            Kind::Other | Kind::Exchange => "server",
+            Kind::Other | Kind::Exchange | Kind::Pop => "server",
             Kind::Local => "device",
         }
     }
@@ -555,6 +560,12 @@ pub struct AccountSetup {
     exchange: exchange::Exchange,
     /// The settings are of an Exchange server account: where it connects is shown, not changed.
     ews: Option<mailcraft_model::EwsServer>,
+    /// The owner picked POP (a POP3 server, its Inbox downloaded alone, #402): the account is
+    /// added as one, and the password page says what that means.
+    pop: bool,
+    /// What a POP account does with the mail it fetches: it stays on the server (the POP norm),
+    /// or it is deleted once it is here.
+    pop_leave: bool,
 }
 
 impl Drop for AccountSetup {
@@ -661,6 +672,8 @@ impl AccountSetup {
             reveal: false,
             exchange: Default::default(),
             ews: None,
+            pop: false,
+            pop_leave: true,
         }
     }
 
@@ -725,6 +738,10 @@ impl AccountSetup {
             w.tenant = line(&oauth.tenant, 64);
         }
         w.oauth = a.oauth.clone();
+        // A POP account is edited as one (its kind doesn't change in Account Settings), and
+        // keeps what its owner said of the server side.
+        w.pop = a.kind == AccountKind::Pop;
+        w.pop_leave = a.pop_options().leave_mail;
         w.edit = Some(Editing { id: a.id, baseline: w.fields() });
         if a.kind.has_offline_window() && !a.is_shared() {
             w.keep_offline = Some((a.keep_offline, a.keep_offline));
@@ -806,6 +823,12 @@ impl AccountSetup {
                 m.insert(key.into(), v);
             }
         }
+        if self.pop {
+            // Its Inbox comes down alone (RFC 1939), and what comes stays on the server unless
+            // the owner said otherwise.
+            m.insert("kind".into(), json!("pop"));
+            m.insert("pop".into(), json!({"leaveMail": self.pop_leave}));
+        }
         match &self.oauth {
             Some(oauth) => {
                 m.insert("auth".into(), json!("oauth2"));
@@ -859,7 +882,7 @@ impl AccountSetup {
             name: email.to_string(),
             email: email.to_string(),
             display_name: self.name.trim().to_string(),
-            kind: AccountKind::Imap,
+            kind: if self.pop { AccountKind::Pop } else { AccountKind::Imap },
             incoming: self.incoming.server(),
             outgoing: self.outgoing.server(),
             username: self.login(email),
@@ -885,6 +908,11 @@ impl AccountSetup {
             "incoming": self.incoming.value(),
             "outgoing": self.outgoing.value(),
         }));
+        if self.pop {
+            // A POP account stays one, and keeps its say about the server side.
+            m.insert("kind".into(), json!("pop"));
+            m.insert("pop".into(), json!({"leaveMail": self.pop_leave}));
+        }
         if self.oauth.is_some() {
             m.insert("clientId".into(), json!(self.client_id.trim()));
             m.insert("tenant".into(), json!(self.tenant.trim()));
@@ -909,9 +937,10 @@ impl AccountSetup {
         if incoming.port().is_none() || outgoing.port().is_none() {
             return Some(tl!("A port is a number from 1 to 65535").to_string());
         }
-        if !incoming.host.trim().is_empty() && mailcraft_model::pop::looks_like_pop(&incoming.host, incoming.port().unwrap_or(0)) {
+        if !incoming.host.trim().is_empty() && mailcraft_model::pop::looks_like_pop(&incoming.host, incoming.port().unwrap_or(0)) && !self.pop {
             return Some(
-                tl!("MailCraft doesn't support POP yet. Use your provider's IMAP server instead (usually imap.<your domain>, port 993).").to_string(),
+                tl!("That looks like a POP server. Pick Other (POP) on the first page, or use your provider's IMAP server (usually imap.<your domain>, port 993).")
+                    .to_string(),
             );
         }
         if self.edit.is_some() {
@@ -1297,8 +1326,14 @@ impl AccountSetup {
             // a look.
             (preset.oauth, preset.service, preset.note) = (None, String::new(), String::new());
         }
+        // POP was picked by hand: no sign-in on a provider's page, and its servers want a look
+        // too (the account is added as POP whatever the domain's records say).
+        self.pop = kind == Kind::Pop;
+        if self.pop {
+            (preset.oauth, preset.service, preset.note) = (None, String::new(), String::new());
+        }
         self.take(preset);
-        self.settings_open = kind == Kind::Other;
+        self.settings_open = matches!(kind, Kind::Other | Kind::Pop);
         self.proceed(app);
     }
 
@@ -2562,8 +2597,27 @@ impl AccountSetup {
     /// The user name and the two servers.
     fn settings(&mut self, ui: &mut Ui, pass: &mut Pass) {
         field(ui, pass, "username", tl!("User name"), &mut self.username, tl!("Usually the whole address"), LINE);
-        server_row(ui, pass, tl!("Incoming mail (IMAP)"), "incoming", &mut self.incoming, "imap.example.org", (993, 143));
+        let (what, guess) = if self.pop {
+            (tl!("Incoming mail (POP)"), ("pop.example.org", (995, 110)))
+        } else {
+            (tl!("Incoming mail (IMAP)"), ("imap.example.org", (993, 143)))
+        };
+        server_row(ui, pass, what, "incoming", &mut self.incoming, guess.0, guess.1);
         server_row(ui, pass, tl!("Outgoing mail (SMTP)"), "outgoing", &mut self.outgoing, "smtp.example.org", (465, 587));
+        if self.pop {
+            // POP carries nothing back: the one say the owner has about the server side is
+            // whether the mail it fetched stays there.
+            ui.checkbox(&mut self.pop_leave, tl!("Leave mail on the server after it is fetched"));
+            note(
+                ui,
+                if self.pop_leave {
+                    tl!("MailCraft keeps its own copy; what is on the server stays, and comes down once.")
+                } else {
+                    tl!("What MailCraft fetches is deleted on the server, and exists only here from then on.")
+                },
+                pass.t.text_dim,
+            );
+        }
     }
 }
 

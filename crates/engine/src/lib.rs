@@ -454,6 +454,8 @@ mod list_sort_tests;
 #[cfg(test)]
 mod many_folders_tests;
 #[cfg(test)]
+mod pop_account_tests;
+#[cfg(test)]
 mod pop_out_tests;
 #[cfg(test)]
 mod sender_trust_tests;

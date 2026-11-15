@@ -63,6 +63,8 @@ pub mod pictures;
 #[cfg(not(target_arch = "wasm32"))]
 mod pinned;
 #[cfg(not(target_arch = "wasm32"))]
+mod pop;
+#[cfg(not(target_arch = "wasm32"))]
 mod push;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod report;
@@ -85,6 +87,9 @@ mod xml_text;
 #[cfg(test)]
 #[cfg(not(target_arch = "wasm32"))]
 mod fake;
+#[cfg(test)]
+#[cfg(not(target_arch = "wasm32"))]
+mod pop_sync_tests;
 #[cfg(test)]
 #[cfg(not(target_arch = "wasm32"))]
 mod tests;
@@ -272,7 +277,7 @@ mod native {
         NetError::Config(if who.is_empty() { said!("sign in to the account first") } else { said!("sign in to {who} first", who) })
     }
 
-    /// Check that the account's servers accept the sign-in (IMAP login, then SMTP EHLO/AUTH when an outgoing server is set).
+    /// Check that the account's servers accept the sign-in (IMAP or POP login by the account's kind, then SMTP EHLO/AUTH when an outgoing server is set).
     ///
     /// `secret` is the account's password, or the access token of an account that signs in with
     /// OAuth ([`Account::oauth`]).
@@ -281,8 +286,15 @@ mod native {
             return Err(NetError::Config(said!("the account has no mail servers to check")));
         }
         if account.incoming.is_some() {
-            let imap = crate::sync::open_imap(account, secret).map_err(|e| e.without(secret))?;
-            let _ = imap.logout();
+            if account.kind == mailcraft_model::AccountKind::Pop {
+                // A POP server doesn't speak IMAP: it is greeted, and signed in, POP's way.
+                let mut pop = crate::pop::open_pop_with(account, secret, &Default::default(), None).map_err(|e| e.without(secret))?;
+                pop.get_mut().leave();
+                let _ = pop.quit();
+            } else {
+                let imap = crate::sync::open_imap(account, secret).map_err(|e| e.without(secret))?;
+                let _ = imap.logout();
+            }
         }
         if account.outgoing.is_some() {
             let smtp = crate::send::open_smtp(account, secret).map_err(|e| e.without(secret))?;

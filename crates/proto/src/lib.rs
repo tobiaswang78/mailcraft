@@ -17,8 +17,11 @@ use mailcraft_i18n::{Arg, Text, said};
 
 pub mod imap;
 mod line;
+pub mod pop;
 pub mod smtp;
 
+#[cfg(test)]
+mod pop_tests;
 #[cfg(test)]
 mod script;
 

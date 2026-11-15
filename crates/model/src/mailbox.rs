@@ -141,6 +141,13 @@ pub struct Folder {
     /// It is never made on the server: one that complete listing doesn't have goes.
     #[serde(skip_serializing_if = "is_false", deserialize_with = "crate::sync::lenient_or_default")]
     pub awaiting_listing: bool,
+    /// A folder of a [`AccountKind::Pop`] account: the UIDLs (RFC 1939 §3.5) of the messages
+    /// the server has that are here, in the order the server listed them last
+    /// ([`crate::sync::FolderState::pop_uidls`]). A POP message is known by its UIDL alone:
+    /// one whose UIDL is missing from the list is mail not yet downloaded. Empty for every
+    /// other kind of account.
+    #[serde(skip_serializing_if = "Vec::is_empty", deserialize_with = "crate::sync::lenient_list")]
+    pub pop_uidls: Vec<String>,
 }
 
 /// Whether a list of category names has `name`.
@@ -315,6 +322,12 @@ pub enum AccountKind {
     /// Its server is [`Account::ews`]; the password is given by whoever holds the connection and
     /// is never written anywhere.
     Exchange,
+    /// A mailbox reached through POP3 (RFC 1939), kept in step by downloading its Inbox alone
+    /// (#402): mail is fetched to this computer and (unless the owner says otherwise) left on the
+    /// server. There are no server folders, no flags to push and nothing to keep in step back:
+    /// what the owner does here stays here. It has an incoming server ([`Account::incoming`],
+    /// ports 110 and 995) and sends through SMTP ([`Account::outgoing`]).
+    Pop,
     /// A kind this version doesn't know: an account that a newer MailCraft added, in a file that
     /// one wrote (or one whose kind can't be read at all). Only what says which account it is
     /// is read of it; the whole of it is kept as the file had it and written back so
@@ -329,7 +342,7 @@ impl AccountKind {
     /// Not an account of a kind this version doesn't know: whatever server it has, this version
     /// can't use it.
     pub fn has_server(self) -> bool {
-        matches!(self, AccountKind::Imap | AccountKind::Microsoft | AccountKind::Jmap | AccountKind::Exchange)
+        matches!(self, AccountKind::Imap | AccountKind::Microsoft | AccountKind::Jmap | AccountKind::Exchange | AccountKind::Pop)
     }
 
     /// Whether the account keeps its mail in full only within its mail to keep offline (#143),
@@ -342,7 +355,7 @@ impl AccountKind {
     /// Whether a Send/Receive sends the mail that waits in the account's Outbox (through SMTP,
     /// through Microsoft Graph, through Exchange Web Services, or over JMAP).
     pub fn sends_mail(self) -> bool {
-        matches!(self, AccountKind::Imap | AccountKind::Microsoft | AccountKind::Jmap | AccountKind::Exchange)
+        matches!(self, AccountKind::Imap | AccountKind::Microsoft | AccountKind::Jmap | AccountKind::Exchange | AccountKind::Pop)
     }
 
     /// Whether the account's folders and messages are known to its server by the ids the server
@@ -456,6 +469,11 @@ pub struct Account {
     /// Inbox is told of, as for any account.
     #[serde(skip_serializing_if = "is_false", deserialize_with = "crate::sync::lenient_or_default")]
     pub alert_primary_only: bool,
+    /// For a [`AccountKind::Pop`] account: how the mail it fetches is left on its server
+    /// ([`crate::pop::PopOptions`]). `None` for every other account, and in a file from before
+    /// there were any; a POP account whose file says nothing leaves its mail on the server.
+    #[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::sync::lenient")]
+    pub pop: Option<crate::pop::PopOptions>,
     /// For an account of a kind this version doesn't know ([`AccountKind::Unknown`]): the account
     /// as its file had it, every field but its id, which is what a mailbox file gets in its place
     /// ([`Mailbox::accounts`]). `None` for every other account.
@@ -472,6 +490,14 @@ impl Account {
     /// `Mailbox` for one without an address.
     pub fn name_by_default(&self) -> String {
         if self.email.trim().is_empty() { "Mailbox".into() } else { self.email.clone() }
+    }
+
+    /// How this account's POP mail is left on its server: what the owner chose, or the POP norm
+    /// (left, forever) when nothing was said. A non-POP account has no say in it.
+    pub fn pop_options(&self) -> crate::pop::PopOptions {
+        let mut options = self.pop.unwrap_or_default();
+        options.clamp();
+        options
     }
 
     /// Whether the account goes by its address in the folder pane, not a name the owner gave it

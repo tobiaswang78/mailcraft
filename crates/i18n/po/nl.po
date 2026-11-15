@@ -487,6 +487,11 @@ msgstr "Een vergadering die wordt herhaald en sommige dagen overslaat, kan vanaf
 msgid "A message asking to unsubscribe goes from {from} to {to}, through your Outbox."
 msgstr "Een bericht met het verzoek om af te melden gaat van {from} naar {to}, via uw Postvak UIT."
 
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "A message larger than MailCraft takes stays on the server: it can't be read a part at a time"
+msgstr ""
+
 #. interface
 #: crates/ui-egui/src/updates.rs
 #, fuzzy
@@ -1394,6 +1399,11 @@ msgstr "Beantwoord de uitnodiging. U wordt gevraagd of u de organisator wilt inf
 #, fuzzy
 msgid "Any other mail server"
 msgstr "Elke andere e-mailserver"
+
+#. name
+#: crates/ui-egui/src/account_setup.rs
+msgid "Any other mail server, read with POP"
+msgstr ""
 
 #. interface
 #: crates/ui-egui/src/graph_switch.rs
@@ -3291,7 +3301,7 @@ msgid "Couldn't check"
 msgstr ""
 
 #. why a mail server couldn't be used
-#: crates/net/src/sync.rs
+#: crates/net/src/pop.rs crates/net/src/sync.rs
 #, fuzzy
 msgid "Couldn't check for new mail"
 msgstr "Er kon niet op nieuwe e-mail worden gecontroleerd"
@@ -3419,6 +3429,16 @@ msgstr "\"{name}\" kon niet worden gelezen: de server gaf geen van de {count} be
 #. why a mail server couldn't be used
 #: crates/net/src/sync.rs
 msgid "Couldn't read Gmail's categories of \"{name}\""
+msgstr ""
+
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "Couldn't read a message of the Inbox"
+msgstr ""
+
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "Couldn't read the account's mail"
 msgstr ""
 
 #. why a mail server couldn't be used
@@ -6381,6 +6401,11 @@ msgstr "Het oorspronkelijke bericht opnemen bij het beantwoorden"
 msgid "Incoming mail (IMAP)"
 msgstr "Inkomende e-mail (IMAP)"
 
+#. interface
+#: crates/ui-egui/src/account_setup.rs
+msgid "Incoming mail (POP)"
+msgstr ""
+
 #. command label, ribbon
 #: crates/engine/src/cmd/format.rs crates/ui-egui/src/ribbon.rs
 #, fuzzy
@@ -7036,6 +7061,11 @@ msgid "Leave it not verified"
 msgstr ""
 
 #. interface
+#: crates/ui-egui/src/account_setup.rs
+msgid "Leave mail on the server after it is fetched"
+msgstr ""
+
+#. interface
 #: crates/ui-egui/src/sync_panel.rs
 #, fuzzy
 msgid "Leave this account out of this Send/Receive"
@@ -7428,12 +7458,6 @@ msgid "MailCraft doesn't rename or move a JMAP account's folders yet: its server
 msgstr "MailCraft hernoemt of verplaatst nog geen mappen van een JMAP-account: de server ervan zou dat niet te horen krijgen"
 
 #. interface
-#: crates/ui-egui/src/account_setup.rs
-#, fuzzy
-msgid "MailCraft doesn't support POP yet. Use your provider's IMAP server instead (usually imap.<your domain>, port 993)."
-msgstr "MailCraft ondersteunt POP nog niet. Gebruik in plaats daarvan de IMAP-server van uw provider (meestal imap.<uw domein>, poort 993)."
-
-#. interface
 #: crates/ui-egui/src/software.rs
 msgid "MailCraft is drawing without the graphics card, which uses a lot of processor time. Installing or updating the graphics driver usually fixes this."
 msgstr ""
@@ -7471,6 +7495,11 @@ msgstr ""
 #, fuzzy
 msgid "MailCraft keeps it in memory until you close the app. It is never written to disk."
 msgstr "MailCraft houdt het in het geheugen totdat u de app sluit. Het wordt nooit naar schijf geschreven."
+
+#. interface
+#: crates/ui-egui/src/account_setup.rs
+msgid "MailCraft keeps its own copy; what is on the server stays, and comes down once."
+msgstr ""
 
 #. interface
 #: crates/ui-egui/src/security.rs
@@ -10011,6 +10040,11 @@ msgstr "Overig"
 #, fuzzy
 msgid "Other (IMAP)"
 msgstr "Overig (IMAP)"
+
+#. name
+#: crates/ui-egui/src/account_setup.rs
+msgid "Other (POP)"
+msgstr ""
 
 #. interface
 #: crates/ui-egui/src/calendar_view.rs
@@ -14013,6 +14047,11 @@ msgstr "Dat is niet het wachtwoord van dit bestand."
 msgid "That key is on the card already"
 msgstr ""
 
+#. interface
+#: crates/ui-egui/src/account_setup.rs
+msgid "That looks like a POP server. Pick Other (POP) on the first page, or use your provider's IMAP server (usually imap.<your domain>, port 993)."
+msgstr ""
+
 #. what a command says
 #: crates/mobile/src/sync.rs crates/mobile/src/sync_api.rs
 msgid "That sign-in is for somebody else's mailbox, not this account's. Nothing was kept."
@@ -14962,6 +15001,11 @@ msgstr "De server antwoordde zonder het adres van Exchange Web Services. Vraag h
 msgid "The server answered, but not as an Exchange server does. Check its address in Server settings."
 msgstr "De server antwoordde, maar niet zoals een Exchange-server dat doet. Controleer het adres bij Serverinstellingen."
 
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "The server can't name its messages (no UIDL), so MailCraft can't tell what is new"
+msgstr ""
+
 #. interface
 #: crates/ui-egui/src/account_setup/exchange.rs
 #, fuzzy
@@ -15043,6 +15087,16 @@ msgstr "De server heeft de aanmelding voor dit account geweigerd. Gebruik Verzen
 msgid "The server turned down the sign-in for {name}: sign in again"
 msgstr "De server heeft de aanmelding voor {name} geweigerd: meld u opnieuw aan"
 
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "The server wouldn't delete 1 of the messages MailCraft fetched; they are all left there"
+msgstr ""
+
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "The server wouldn't delete {count} of the messages MailCraft fetched; they are all left there"
+msgstr ""
+
 #. interface
 #: crates/ui-egui/src/account_setup/exchange.rs
 #, fuzzy
@@ -15115,6 +15169,11 @@ msgstr ""
 #. interface
 #: crates/ui-egui/src/account_setup.rs
 msgid "The servers below were found in the DNS records of {domain} (its SRV records). Check them before you connect."
+msgstr ""
+
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "The session ended without the server saying the fetched mail was deleted; it may come again"
 msgstr ""
 
 #. interface
@@ -17168,6 +17227,11 @@ msgid "Week starts on"
 msgstr "Week begint op"
 
 #. interface
+#: crates/ui-egui/src/account_setup.rs
+msgid "What MailCraft fetches is deleted on the server, and exists only here from then on."
+msgstr ""
+
+#. interface
 #: crates/ui-egui/src/report_problem.rs
 #, fuzzy
 msgid "What happened"
@@ -18046,6 +18110,11 @@ msgstr "de server en het adres van een JMAP-account kunnen niet meer worden gewi
 msgid "a Microsoft sign-in is only used with Microsoft's own mail servers: this account names another server"
 msgstr "een aanmelding bij Microsoft wordt alleen gebruikt met de eigen mailservers van Microsoft: dit account noemt een andere server"
 
+#. why a mail server couldn't be used
+#: crates/net/src/pop.rs
+msgid "a POP server is not signed in to through Microsoft or Google: it takes a password"
+msgstr ""
+
 #. what a command says
 #: crates/engine/src/cmd/calendar.rs
 #, fuzzy
@@ -18413,7 +18482,7 @@ msgid "day"
 msgstr "dag"
 
 #. why a mail server couldn't be used
-#: crates/net/src/sync.rs crates/proto/src/imap/password.rs
+#: crates/net/src/pop.rs crates/net/src/sync.rs crates/proto/src/imap/password.rs
 #, fuzzy
 msgid "enter a password to sign in"
 msgstr "voer een wachtwoord in om u aan te melden"
@@ -19398,7 +19467,7 @@ msgid "the OpenPGP key is larger than a Public key is kept"
 msgstr ""
 
 #. why a mail server couldn't be used
-#: crates/net/src/sync.rs
+#: crates/net/src/pop.rs crates/net/src/sync.rs
 #, fuzzy
 msgid "the account has no incoming server"
 msgstr "het account heeft geen server voor inkomende e-mail"
@@ -19422,7 +19491,7 @@ msgid "the account has no usable e-mail address to send from"
 msgstr "het account heeft geen bruikbaar e-mailadres om vanaf te verzenden"
 
 #. why a mail server couldn't be used
-#: crates/net/src/send.rs crates/net/src/sync.rs
+#: crates/net/src/pop.rs crates/net/src/send.rs crates/net/src/sync.rs
 #, fuzzy
 msgid "the account has no user name or e-mail address to sign in with"
 msgstr "het account heeft geen gebruikersnaam of e-mailadres om mee aan te melden"
@@ -19844,6 +19913,11 @@ msgstr ""
 msgid "the server answered a command that wasn't sent"
 msgstr "de server antwoordde op een opdracht die niet was verzonden"
 
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server answered a command with neither +OK nor -ERR"
+msgstr ""
+
 #. interface
 #: crates/ui-egui/src/calendar_sync.rs
 #, fuzzy
@@ -19916,6 +19990,11 @@ msgid "the server didn't end IDLE properly"
 msgstr ""
 
 #. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server didn't greet like a POP server: {reason}"
+msgstr ""
+
+#. why a mail server couldn't be used
 #: crates/proto/src/imap/mod.rs
 #, fuzzy
 msgid "the server didn't greet like an IMAP server"
@@ -19940,7 +20019,7 @@ msgid "the server doesn't let this rule be changed"
 msgstr "de server staat niet toe dat deze regel wordt gewijzigd"
 
 #. why a mail server couldn't be used
-#: crates/net/src/send.rs crates/net/src/sync.rs
+#: crates/net/src/pop.rs crates/net/src/send.rs crates/net/src/sync.rs
 #, fuzzy
 msgid "the server doesn't offer STARTTLS"
 msgstr "de server biedt geen STARTTLS"
@@ -19969,10 +20048,20 @@ msgid "the server ended the session: {reason}"
 msgstr "de server beëindigde de sessie: {reason}"
 
 #. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server gave the same UIDL to two messages"
+msgstr ""
+
+#. why a mail server couldn't be used
 #: crates/proto/src/imap/mod.rs
 #, fuzzy
 msgid "the server greeted with a refusal: {reason}"
 msgstr "de server groette met een weigering: {reason}"
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server holds more messages than MailCraft reads"
+msgstr ""
 
 #. why a mail server couldn't be used
 #: crates/proto/src/imap/idle.rs
@@ -19984,6 +20073,16 @@ msgstr ""
 #, fuzzy
 msgid "the server keeps this folder: it can't be renamed, moved or deleted"
 msgstr "de server beheert deze map: deze kan niet worden hernoemd, verplaatst of verwijderd"
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server named a message in a way MailCraft can't keep"
+msgstr ""
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server never said it could start a secure connection"
+msgstr ""
 
 #. why a mail server couldn't be used
 #: crates/proto/src/smtp.rs
@@ -20007,6 +20106,11 @@ msgstr ""
 #, fuzzy
 msgid "the server refused the connection"
 msgstr "de server weigerde de verbinding"
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server refused {what}: {reason}"
+msgstr ""
 
 #. why a mail server couldn't be used
 #: crates/proto/src/imap/mod.rs
@@ -20044,7 +20148,7 @@ msgid "the server sent a web page instead of a picture"
 msgstr "de server stuurde een webpagina in plaats van een afbeelding"
 
 #. why a mail server couldn't be used
-#: crates/proto/src/imap/mod.rs crates/proto/src/smtp.rs
+#: crates/proto/src/imap/mod.rs crates/proto/src/pop.rs crates/proto/src/smtp.rs
 #, fuzzy
 msgid "the server sent data before the secure connection started"
 msgstr "de server stuurde gegevens voordat de beveiligde verbinding begon"
@@ -20052,6 +20156,16 @@ msgstr "de server stuurde gegevens voordat de beveiligde verbinding begon"
 #. why a mail server couldn't be used
 #: crates/proto/src/imap/idle.rs
 msgid "the server sent data it has no reason to send while idle"
+msgstr ""
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server sent more lines than MailCraft reads"
+msgstr ""
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server sent more than MailCraft reads of one answer"
 msgstr ""
 
 #. interface
@@ -20101,6 +20215,11 @@ msgstr "de server deed er te lang over om te antwoorden"
 #, fuzzy
 msgid "the server wouldn't send “{subject}” whole, so it can't be forwarded as an attachment"
 msgstr "de server wilde „{subject}” niet heel verzenden, dus het kan niet als bijlage worden doorgestuurd"
+
+#. why a mail server couldn't be used
+#: crates/proto/src/pop.rs
+msgid "the server's answer to STAT said nothing MailCraft reads"
+msgstr ""
 
 #. why a mail server couldn't be used
 #: crates/proto/src/imap/mod.rs
@@ -20192,7 +20311,7 @@ msgid "the user name or access token is too long to be sent"
 msgstr "de gebruikersnaam of het toegangstoken is te lang om te worden verzonden"
 
 #. why a mail server couldn't be used
-#: crates/proto/src/imap/mod.rs crates/proto/src/smtp.rs
+#: crates/proto/src/imap/mod.rs crates/proto/src/pop.rs crates/proto/src/smtp.rs
 #, fuzzy
 msgid "the user name or password has a character that can't be sent"
 msgstr "de gebruikersnaam of het wachtwoord bevat een teken dat niet kan worden verzonden"
@@ -22137,6 +22256,16 @@ msgstr[0] "{sent} bericht verzonden"
 msgstr[1] "{sent} berichten verzonden"
 
 #. interface
+#: crates/ui-egui/src/backstage.rs
+msgid "{servers} · mail fetched is deleted on the server"
+msgstr ""
+
+#. interface
+#: crates/ui-egui/src/backstage.rs
+msgid "{servers} · mail fetched stays on the server"
+msgstr ""
+
+#. interface
 #: crates/ui-egui/src/account_setup.rs
 #, fuzzy
 msgid "{service} account"
@@ -22242,6 +22371,10 @@ msgstr "„{subject}” was te groot om te downloaden: alleen de koptekst is hie
 #, fuzzy
 msgid "“{subject}” wasn't found on its server, so it can't be forwarded as an attachment"
 msgstr "„{subject}” is niet op de server gevonden, dus het kan niet als bijlage worden doorgestuurd"
+
+#, fuzzy
+#~ msgid "MailCraft doesn't support POP yet. Use your provider's IMAP server instead (usually imap.<your domain>, port 993)."
+#~ msgstr "MailCraft ondersteunt POP nog niet. Gebruik in plaats daarvan de IMAP-server van uw provider (meestal imap.<uw domein>, poort 993)."
 
 #, fuzzy
 #~ msgid "{not_sending_yet}, and no other account here has a mail server to send this through."
